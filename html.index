@@ -365,5 +365,15 @@
       fileInput.value = "";
     };
   </script>
+  <script>
+    function sendHeight() {
+      const height = document.body.scrollHeight;
+      parent.postMessage({ type: "setHeight", height: height }, "*");
+    }
+
+    window.addEventListener("load", sendHeight);
+    window.addEventListener("resize", sendHeight);
+    setInterval(sendHeight, 500); // height update har 0.5 sec me
+  </script>
 </body>
 </html>
