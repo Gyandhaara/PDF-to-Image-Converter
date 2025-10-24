@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF to Image Converter - Gyandhaara.in</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+  <!-- PDF-lib -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+  <style>
+    body { background: #f9fafb; }
+    .drop-zone { border: 2px dashed #4f46e5; transition: 0.3s; }
+    .drop-zone:hover { background: #eef2ff; cursor: pointer; }
+    .preview-img { max-height: 200px; margin: 5px auto; }
+    .page-checkbox { margin-right: 5px; }
+    .tab { cursor: pointer; padding: 10px 15px; border-radius: 5px 5px 0 0; }
+    .tab.active { background: #4f46e5; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .mobile-optimized { max-width: 100%; overflow-x: hidden; }
+    @media (max-width: 768px) {
+      .mobile-controls { flex-direction: column; }
+      .mobile-controls button, .mobile-controls select { width: 100%; margin-bottom: 5px; }
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen mobile-optimized">
+
+  <!-- Header -->
+  <header class="bg-indigo-600 text-white p-4 text-center text-xl font-bold">
+    PDF to Image Converter – Made by Gyandhaara.in
+  </header>
+
+  <!-- Tabs -->
+  <div class="bg-white shadow-sm">
+    <div class="container mx-auto flex overflow-x-auto">
+      <div class="tab active" data-tab="converter">Converter</div>
+      <div class="tab" data-tab="info">Tool Information</div>
+      <div class="tab" data-tab="credits">Credits</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto p-4">
+    
+    <!-- Converter Tab -->
+    <div id="converter" class="tab-content active">
+      <!-- Upload -->
+      <div id="dropZone" class="drop-zone p-6 rounded-lg text-center mb-4">
+        <p class="text-gray-600">Click or Drag & Drop PDF here</p>
+        <input type="file" id="fileInput" accept="application/pdf" class="hidden">
+      </div>
+
+      <!-- Controls -->
+      <div class="flex flex-wrap gap-2 mb-4 mobile-controls">
+        <button id="selectAllBtn" class="bg-green-500 text-white px-3 py-2 rounded flex-1 min-w-[120px]">Select All</button>
+        <button id="deselectAllBtn" class="bg-yellow-500 text-white px-3 py-2 rounded flex-1 min-w-[120px]">Deselect All</button>
+        <select id="formatSelect" class="border rounded px-2 py-2 flex-1 min-w-[120px]">
+          <option value="png">PNG</option>
+          <option value="jpg">JPG</option>
+          <option value="webp">WebP</option>
+        </select>
+        <button id="convertBtn" class="bg-indigo-600 text-white px-3 py-2 rounded flex-1 min-w-[120px]">Convert Selected</button>
+        <button id="downloadAllBtn" class="bg-blue-600 text-white px-3 py-2 rounded flex-1 min-w-[120px]">Download All</button>
+        <button id="resetBtn" class="bg-red-600 text-white px-3 py-2 rounded flex-1 min-w-[120px]">Reset</button>
+      </div>
+
+      <!-- Previews -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h2 class="font-bold text-lg mb-2">📑 PDF Preview (Before)</h2>
+          <div id="pdfPreview" class="border p-2 bg-white rounded max-h-[500px] overflow-y-auto"></div>
+        </div>
+        <div>
+          <h2 class="font-bold text-lg mb-2">🖼 Converted Images (After)</h2>
+          <div id="imagePreview" class="border p-2 bg-white rounded max-h-[500px] overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Information Tab -->
+    <div id="info" class="tab-content p-4 bg-white rounded-lg shadow">
+      <h2 class="text-2xl font-bold mb-4 text-indigo-600">Tool Information</h2>
+      
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2">About This Tool</h3>
+        <p class="mb-3">This PDF to Image Converter allows you to convert PDF documents into various image formats directly in your browser. No server uploads required - all processing happens locally on your device.</p>
+        <p class="mb-3">Perfect for creating image previews of documents, extracting diagrams or illustrations, or converting PDF pages for use in presentations and websites.</p>
+      </div>
+      
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2">Features</h3>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>Convert PDF pages to PNG, JPG, or WebP format</li>
+          <li>Select specific pages or convert all pages</li>
+          <li>Preview PDF pages before conversion</li>
+          <li>Download individual images or all images at once</li>
+          <li>100% client-side processing - your files never leave your device</li>
+          <li>Mobile-friendly interface</li>
+          <li>Free to use with no limitations</li>
+        </ul>
+      </div>
+      
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2">How to Use</h3>
+        <ol class="list-decimal pl-5 space-y-2">
+          <li>Click the upload area or drag and drop your PDF file</li>
+          <li>Select which pages you want to convert (use "Select All" or "Deselect All" for quick selection)</li>
+          <li>Choose your preferred output format (PNG, JPG, or WebP)</li>
+          <li>Click "Convert Selected" to process the pages</li>
+          <li>Download individual images or use "Download All" to get all converted images</li>
+        </ol>
+      </div>
+      
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Privacy & Security</h3>
+        <p class="mb-3">Your privacy is important. This tool processes all files locally in your browser. No data is sent to any server, ensuring your documents remain completely private and secure.</p>
+        <p>The tool is open source and available for anyone to inspect and verify.</p>
+      </div>
+    </div>
+    
+    <!-- Credits Tab -->
+    <div id="credits" class="tab-content p-4 bg-white rounded-lg shadow">
+      <h2 class="text-2xl font-bold mb-4 text-indigo-600">Credits & Attribution</h2>
+      
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2">Development</h3>
+        <p class="mb-3">This tool was created by <span class="font-semibold">Gyandhaara.in</span> as a free resource for the community.</p>
+        <p>Gyandhaara.in is dedicated to creating useful web tools that help people with everyday tasks without compromising their privacy.</p>
+      </div>
+      
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2">Technologies Used</h3>
+        <p class="mb-2">This tool is built using several open-source libraries:</p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>
+            <span class="font-semibold">PDF.js</span> - Mozilla's PDF rendering library
+            <div class="text-sm text-gray-600">Used to parse and render PDF documents in the browser</div>
+          </li>
+          <li>
+            <span class="font-semibold">PDF-lib</span> - A library for creating and modifying PDF documents
+            <div class="text-sm text-gray-600">Provides additional PDF manipulation capabilities</div>
+          </li>
+          <li>
+            <span class="font-semibold">Tailwind CSS</span> - A utility-first CSS framework
+            <div class="text-sm text-gray-600">Used for styling and responsive design</div>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2">License</h3>
+        <p class="mb-3">This tool is released under the MIT License, which means you are free to use, modify, and distribute it.</p>
+        <div class="bg-gray-100 p-4 rounded text-sm">
+          <p class="font-semibold">MIT License</p>
+          <p>Copyright (c) 2025 Gyandhaara.in</p>
+          <p class="mt-2">Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+          <p class="mt-2">The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+          <p class="mt-2">THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+        </div>
+      </div>
+      
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Contact & Support</h3>
+        <p>If you encounter any issues or have suggestions for improvements, please visit <a href="https://gyandhaara.in" class="text-indigo-600 hover:underline">gyandhaara.in</a> for more information.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 text-center text-sm p-4">
+    <p>© 2025 Gyandhaara.in | MIT License</p>
+    <p>This tool is open-source and free to use.</p>
+  </footer>
+
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
+
+    let pdfDoc = null;
+    let pageCheckboxes = [];
+    let convertedImages = [];
+    let selectedFormat = "png";
+
+    const fileInput = document.getElementById("fileInput");
+    const dropZone = document.getElementById("dropZone");
+    const pdfPreview = document.getElementById("pdfPreview");
+    const imagePreview = document.getElementById("imagePreview");
+
+    // Tab functionality
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Remove active class from all tabs and contents
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked tab and corresponding content
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Upload
+    dropZone.addEventListener("click", () => fileInput.click());
+    dropZone.addEventListener("dragover", e => { 
+      e.preventDefault(); 
+      dropZone.classList.add("bg-indigo-100"); 
+    });
+    dropZone.addEventListener("dragleave", () => dropZone.classList.remove("bg-indigo-100"));
+    dropZone.addEventListener("drop", e => {
+      e.preventDefault(); 
+      dropZone.classList.remove("bg-indigo-100");
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener("change", e => handleFile(e.target.files[0]));
+
+    function handleFile(file) {
+      if (file.type !== "application/pdf") { 
+        alert("Please upload a PDF file"); 
+        return; 
+      }
+      const reader = new FileReader();
+      reader.onload = e => loadPDF(new Uint8Array(e.target.result));
+      reader.readAsArrayBuffer(file);
+    }
+
+    async function loadPDF(data) {
+      try {
+        pdfDoc = await pdfjsLib.getDocument({ data }).promise;
+        pdfPreview.innerHTML = "";
+        pageCheckboxes = [];
+        
+        for (let i = 1; i <= pdfDoc.numPages; i++) {
+          const page = await pdfDoc.getPage(i);
+          const viewport = page.getViewport({ scale: 0.2 });
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+          await page.render({ canvasContext: ctx, viewport }).promise;
+
+          const wrapper = document.createElement("div");
+          wrapper.className = "flex items-center mb-2 p-2 border-b";
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.className = "page-checkbox";
+          checkbox.checked = true;
+          pageCheckboxes.push({ checkbox, pageNum: i });
+          
+          const label = document.createElement("label");
+          label.textContent = "Page " + i;
+          label.className = "mr-2";
+          
+          wrapper.appendChild(checkbox);
+          wrapper.appendChild(label);
+          wrapper.appendChild(canvas);
+          pdfPreview.appendChild(wrapper);
+        }
+      } catch (error) {
+        console.error("Error loading PDF:", error);
+        alert("Error loading PDF. Please make sure it's a valid PDF file.");
+      }
+    }
+
+    document.getElementById("selectAllBtn").onclick = () => {
+      pageCheckboxes.forEach(p => p.checkbox.checked = true);
+    };
+    
+    document.getElementById("deselectAllBtn").onclick = () => {
+      pageCheckboxes.forEach(p => p.checkbox.checked = false);
+    };
+    
+    document.getElementById("formatSelect").onchange = e => {
+      selectedFormat = e.target.value;
+    };
+
+    document.getElementById("convertBtn").onclick = async () => {
+      if (!pdfDoc) {
+        alert("Please upload a PDF file first!");
+        return;
+      }
+      
+      const selectedPages = pageCheckboxes.filter(p => p.checkbox.checked);
+      if (selectedPages.length === 0) {
+        alert("Please select at least one page to convert!");
+        return;
+      }
+      
+      imagePreview.innerHTML = "";
+      convertedImages = [];
+
+      for (let { pageNum } of selectedPages) {
+        try {
+          const page = await pdfDoc.getPage(pageNum);
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+          await page.render({ canvasContext: ctx, viewport }).promise;
+
+          const dataUrl = canvas.toDataURL("image/" + (selectedFormat === "jpg" ? "jpeg" : selectedFormat), 1.0);
+          const byteString = atob(dataUrl.split(",")[1]);
+          const sizeKB = (byteString.length / 1024).toFixed(2);
+
+          const img = new Image();
+          img.src = dataUrl;
+          img.className = "preview-img block mx-auto";
+
+          const wrapper = document.createElement("div");
+          wrapper.className = "mb-4 p-3 border rounded bg-gray-50";
+          wrapper.innerHTML = `<p class="font-semibold text-center">Page ${pageNum} - ${sizeKB} KB</p>`;
+          wrapper.appendChild(img);
+
+          const dlBtn = document.createElement("button");
+          dlBtn.textContent = "Download";
+          dlBtn.className = "bg-blue-500 text-white px-3 py-1 rounded mt-2 block mx-auto";
+          dlBtn.onclick = () => downloadImage(dataUrl, `page_${pageNum}.${selectedFormat}`);
+          wrapper.appendChild(dlBtn);
+
+          imagePreview.appendChild(wrapper);
+          convertedImages.push({ dataUrl, pageNum });
+        } catch (error) {
+          console.error(`Error converting page ${pageNum}:`, error);
+          const errorDiv = document.createElement("div");
+          errorDiv.className = "mb-4 p-3 border rounded bg-red-50";
+          errorDiv.innerHTML = `<p class="text-red-600 text-center">Error converting page ${pageNum}</p>`;
+          imagePreview.appendChild(errorDiv);
+        }
+      }
+    };
+
+    function downloadImage(dataUrl, filename) {
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    document.getElementById("downloadAllBtn").onclick = () => {
+      if (convertedImages.length === 0) {
+        alert("No images converted yet! Please convert some pages first.");
+        return;
+      }
+      
+      convertedImages.forEach((img, i) => {
+        // Add a small delay to prevent browser from blocking multiple downloads
+        setTimeout(() => {
+          downloadImage(img.dataUrl, `page_${img.pageNum}.${selectedFormat}`);
+        }, i * 100);
+      });
+    };
+
+    document.getElementById("resetBtn").onclick = () => {
+      pdfDoc = null;
+      pageCheckboxes = [];
+      convertedImages = [];
+      pdfPreview.innerHTML = "";
+      imagePreview.innerHTML = "";
+      fileInput.value = "";
+    };
+  </script>
+</body>
+</html>
